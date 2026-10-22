@@ -34,6 +34,7 @@ targets:
           - 1
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
+        UIRequiresFullScreen: true           # 세로 고정. 이것이 없으면 업로드 검증이 모든 방향을 요구합니다
         UIUserInterfaceStyle: Light
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
