@@ -56,3 +56,4 @@ targets:
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         DEVELOPMENT_TEAM: "UX7GD558S8"
         CODE_SIGN_STYLE: Automatic
+        TARGETED_DEVICE_FAMILY: "1"          # XcodeGen 의 대상 기본값("1,2", iPad 포함)을 덮어씁니다
