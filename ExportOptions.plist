@@ -7,9 +7,16 @@
   <key>destination</key>
   <string>upload</string>
   <key>signingStyle</key>
-  <string>automatic</string>
+  <string>manual</string>
   <key>teamID</key>
   <string>UX7GD558S8</string>
+  <key>signingCertificate</key>
+  <string>Apple Distribution</string>
+  <key>provisioningProfiles</key>
+  <dict>
+    <key>kr.co.mindn.veriscope</key>
+    <string>Veriscope AppStore CI</string>
+  </dict>
   <key>uploadSymbols</key>
   <true/>
 </dict>

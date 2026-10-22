@@ -41,6 +41,8 @@ jobs:
           security import "$RUNNER_TEMP/cert.p12" -P "$CERTIFICATE_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
           security list-keychain -d user -s "$KEYCHAIN_PATH"
           security set-key-partition-list -S apple-tool:,apple: -k "" "$KEYCHAIN_PATH"
+          SERIAL=$(openssl pkcs12 -in "$RUNNER_TEMP/cert.p12" -nokeys -passin pass:"$CERTIFICATE_PASSWORD" | openssl x509 -noout -serial | cut -d= -f2)
+          echo "CERT_SERIAL=$SERIAL" >> "$GITHUB_ENV"
           rm "$RUNNER_TEMP/cert.p12"
 
       # App Store Connect API 키: 번들 ID 등록·프로비저닝 프로파일 생성·업로드를 자동으로 합니다
@@ -52,10 +54,22 @@ jobs:
           mkdir -p ~/.appstoreconnect/private_keys
           echo -n "$ASC_PRIVATE_KEY" | base64 --decode > ~/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8
 
-      - name: Build archive
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # 배포용 프로비저닝 프로파일을 API 로 만들어 설치 (ci/make_profile.py)
+      - name: Create App Store provisioning profile
         env:
           ASC_KEY_ID:    ${{ secrets.ASC_API_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_API_ISSUER_ID }}
+          BUNDLE_ID:     kr.co.mindn.veriscope
+          PROFILE_NAME:  Veriscope AppStore CI
+        run: |
+          pip install --quiet pyjwt cryptography
+          ASC_KEY_PATH=~/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8 python ci/make_profile.py
+
+      - name: Build archive
         run: |
           set -o pipefail
           xcodebuild \
@@ -64,10 +78,9 @@ jobs:
             -configuration Release \
             -destination 'generic/platform=iOS' \
             -archivePath "$RUNNER_TEMP/Veriscope.xcarchive" \
-            -allowProvisioningUpdates \
-            -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8 \
-            -authenticationKeyID "$ASC_KEY_ID" \
-            -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
+            PROVISIONING_PROFILE_SPECIFIER="Veriscope AppStore CI" \
             CURRENT_PROJECT_VERSION="${{ github.run_number }}" \
             archive
 
@@ -80,7 +93,6 @@ jobs:
             -archivePath "$RUNNER_TEMP/Veriscope.xcarchive" \
             -exportPath  "$RUNNER_TEMP/export" \
             -exportOptionsPlist ExportOptions.plist \
-            -allowProvisioningUpdates \
             -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8 \
             -authenticationKeyID "$ASC_KEY_ID" \
             -authenticationKeyIssuerID "$ASC_ISSUER_ID"
