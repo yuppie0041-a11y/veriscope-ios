@@ -1,0 +1,57 @@
+name: Veriscope
+options:
+  bundleIdPrefix: kr.co.mindn
+  deploymentTarget:
+    iOS: "16.0"
+  defaultConfig: Release
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    IPHONEOS_DEPLOYMENT_TARGET: "16.0"
+    TARGETED_DEVICE_FAMILY: "1"          # iPhone 전용 (iPad 스크린샷 요구를 피함)
+    ENABLE_BITCODE: NO
+    DEBUG_INFORMATION_FORMAT: dwarf-with-dsym
+
+targets:
+  Veriscope:
+    type: application
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - path: Veriscope
+    info:
+      path: Veriscope/Info.plist
+      properties:
+        CFBundleName: "논문검증"
+        CFBundleDisplayName: "논문검증"
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        CFBundleDevelopmentRegion: ko
+        UILaunchScreen:
+          UIColorName: LaunchBackground
+        UIDeviceFamily:
+          - 1
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        UIUserInterfaceStyle: Light
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+          UISceneConfigurations:
+            UIWindowSceneSessionRoleApplication:
+              - UISceneConfigurationName: Default Configuration
+                UISceneDelegateClassName: $(PRODUCT_MODULE_NAME).SceneDelegate
+        ITSAppUsesNonExemptEncryption: false
+        # 논문 파일을 고를 때 iOS 가 사진·카메라 메뉴를 함께 보여 줄 수 있어 넣어 둡니다
+        NSCameraUsageDescription: "논문 페이지를 찍어 올릴 때 카메라를 사용합니다."
+        NSPhotoLibraryUsageDescription: "사진으로 저장된 문서를 올릴 때 사용합니다."
+        LSRequiresIPhoneOS: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: kr.co.mindn.veriscope   # App Store Connect 의 번들 ID 와 같아야 합니다
+        PRODUCT_NAME: Veriscope
+        MARKETING_VERSION: "1.0.0"
+        CURRENT_PROJECT_VERSION: "1"                       # CI 가 실행 번호로 바꿉니다
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        DEVELOPMENT_TEAM: "UX7GD558S8"
+        CODE_SIGN_STYLE: Automatic
